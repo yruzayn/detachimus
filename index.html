@@ -1335,5 +1335,58 @@ a:hover { color: rgb(63, 167, 220); }
 
 
 
+
+<script>
+(function () {
+  var FAQ = [["Do I need an account?","No. Detachimus runs entirely offline. An account only exists so your streak, blocklist and scenes follow you to a second Mac."],["What happens after the free month?","You get a reminder a few days before it ends. If you do nothing, the app keeps working as a free timer — blocking, scenes and analytics pause until you subscribe."],["Is a card needed to start?","No card, no billing details, no trial countdown in the interface. Email address and a password."],["Where does my activity data live?","In a local database in your Library folder. It is never uploaded, not even with an account. You can export or delete it whenever you want."],["Why does blocking need my password?","System-wide blocking edits the macOS hosts file, which requires admin rights once. That is what makes it hold in every browser instead of just one."],["Can I use it on more than one Mac?","Yes. One subscription covers every Mac you personally use."]];
+  var OPEN = { bg: 'rgba(63, 167, 220, 0.08)', border: '1px solid rgba(63, 167, 220, 0.4)' };
+  var SHUT = { bg: 'rgba(255, 255, 255, 0.72)', border: '1px solid rgba(255, 255, 255, 0.9)' };
+  var ANSWER_CSS = 'font-size:12.5px;color:rgb(74,85,96);font-weight:500;line-height:1.6;margin-top:10px;';
+
+  function boot() {
+    var faq = document.getElementById('faq');
+    if (!faq) return;
+    var cards = [].slice.call(faq.querySelectorAll('.scp2'));
+    if (!cards.length) return;
+
+    cards.forEach(function (card, i) {
+      var entry = FAQ[i];
+      if (!entry) return;
+      var rows = card.children;
+      var head = rows[0];
+      var answer = rows[1];
+      if (!answer) {                       // closed items shipped without their answer
+        answer = document.createElement('div');
+        answer.setAttribute('style', ANSWER_CSS);
+        answer.innerHTML = '<span class="sc-interp"></span>';
+        card.appendChild(answer);
+      }
+      var span = answer.querySelector('.sc-interp') || answer;
+      if (!span.textContent.trim()) span.textContent = entry[1];
+      var open = i === 0;
+      answer.style.display = open ? '' : 'none';
+      card.setAttribute('data-open', open ? '1' : '0');
+
+      card.addEventListener('click', function () {
+        var isOpen = card.getAttribute('data-open') === '1';
+        cards.forEach(function (c) { set(c, false); });
+        set(card, !isOpen);
+      });
+
+      function set(c, want) {
+        var a = c.children[1];
+        var glyph = c.children[0] && c.children[0].children[1];
+        var g = glyph && (glyph.querySelector('.sc-interp') || glyph);
+        c.setAttribute('data-open', want ? '1' : '0');
+        if (a) a.style.display = want ? '' : 'none';
+        if (g) g.textContent = want ? '\u2212' : '+';
+        c.style.background = want ? OPEN.bg : SHUT.bg;
+        c.style.border = want ? OPEN.border : SHUT.border;
+      }
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+</script>
 </body>
 </html>
